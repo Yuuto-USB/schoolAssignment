@@ -16,14 +16,14 @@ typedef struct {
 
 todoList todoLists[MAX_TASKS]; // 할 일 목록 배열 선언
 
-// 윤년 확인 함수 by 한상규
+// 윤년 확인 함수
 // 주어진 연도가 윤년인지 확인하는 함수입니다.
 // 조건: 4의 배수이고 100의 배수가 아니거나, 400의 배수이면 윤년입니다.
 int isLeapYear(int year) {
   return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-// 전체 일수 계산 함수 by 한상규
+// 전체 일수 계산 함수
 // 주어진 날짜(y, m, d)까지의 총 일수를 계산합니다.
 // 윤년인 경우 2월은 29일로 설정하여 계산합니다.
 long totalday(int y, int m, int d) {
