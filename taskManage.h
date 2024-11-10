@@ -15,7 +15,24 @@ typedef struct {
 } todoList;
 
 todoList todoLists[MAX_TASKS]; // 할 일 목록 배열 선언
-
+void printTaskForm(int i){
+  if (todoLists[i].d_Day > 0) {
+    printf("| [%s] %s [%d.%d.%1d] D-%ld #%s\n", todoLists[i].taskState,
+           todoLists[i].taskName, todoLists[i].targetYear,
+           todoLists[i].targetMonth, todoLists[i].targetDay,
+           todoLists[i].d_Day, todoLists[i].importance);
+  } else if (todoLists[i].d_Day == 0) {
+    printf("| [%s] %s [%d.%d.%1d] D-Day #%s\n", todoLists[i].taskState,
+           todoLists[i].taskName, todoLists[i].targetYear,
+           todoLists[i].targetMonth, todoLists[i].targetDay,
+           todoLists[i].importance);
+  } else if (todoLists[i].d_Day < 0) {
+    printf("| [%s] %s [%d.%d.%1d] D+%ld #%s\n", todoLists[i].taskState,
+           todoLists[i].taskName, todoLists[i].targetYear,
+           todoLists[i].targetMonth, todoLists[i].targetDay,
+           -todoLists[i].d_Day, todoLists[i].importance);
+  }
+}
 // 윤년 확인 함수
 // 주어진 연도가 윤년인지 확인하는 함수입니다.
 // 조건: 4의 배수이고 100의 배수가 아니거나, 400의 배수이면 윤년입니다.
@@ -49,7 +66,7 @@ long totalday(int y, int m, int d) {
   return total;
 }
 
-// D-day 계산 함수 by 한상규
+// D-day 계산 함수
 // 현재 날짜와 목표 날짜의 차이를 계산하여 D-day 값을 반환합니다.
 long D_day_count(int counts, int year, int month, int day) {
   long today_days = totalday(year, month, day); // 현재 날짜의 총 일수
@@ -158,25 +175,8 @@ int printTask(int counts) {
   int i;
   printf("-------------------------------------------\n");
   for (i = 0; i < counts; i++) {
-    if (strcmp(todoLists[i].taskName, "") != 0) {
-      if (todoLists[i].d_Day > 0) {
-        printf("| [%s] %s [%d.%d.%1d] D-%ld #%s\n", todoLists[i].taskState,
-               todoLists[i].taskName, todoLists[i].targetYear,
-               todoLists[i].targetMonth, todoLists[i].targetDay,
-               todoLists[i].d_Day, todoLists[i].importance);
-      } else if (todoLists[i].d_Day == 0) {
-        printf("| [%s] %s [%d.%d.%1d] D-Day #%s\n", todoLists[i].taskState,
-               todoLists[i].taskName, todoLists[i].targetYear,
-               todoLists[i].targetMonth, todoLists[i].targetDay,
-               todoLists[i].importance);
-      } else if (todoLists[i].d_Day < 0) {
-        printf("| [%s] %s [%d.%d.%1d] D+%ld #%s\n", todoLists[i].taskState,
-               todoLists[i].taskName, todoLists[i].targetYear,
-               todoLists[i].targetMonth, todoLists[i].targetDay,
-               -todoLists[i].d_Day, todoLists[i].importance);
-      }
-    } else {
-      break;
+    if (strcmp(todoLists[i].taskName, "") != 0){
+      printTaskForm(i);
     }
   }
   return 0;
