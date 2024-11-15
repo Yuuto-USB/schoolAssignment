@@ -1,4 +1,4 @@
-#include "taskManage.h"
+#include "taskManageEng.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +13,7 @@ int main() {
 
   fp = fopen("todoList.csv", "r");
   if (fp == NULL) {
-    printf("파일 열기 오류");
+    printf("File opening error");
     fclose(fp);
     return 1;
   }
@@ -35,18 +35,18 @@ int main() {
     initDday(counts);
   }
 
-  printf("Todo리스트 프로그램입니다.\n");
+  printf("This is the Todo List program.\n");
 
-  while (select != 7) {
+  while (select != 9) {
     printf("-------------------------------------------\n");
-    printf("1번 목표 입력 | 2번 목표 삭제 | 3번 목표 출력 | 4번 목표 수정 | "
-           "5번 목표 상태 "
-           "바꾸기 | 6번 날짜 동기화 | 7번 종료\n");
+    printf("1. Add Task | 2. Remove Task | 3. Print Task | 4. Modify Task | "
+           "5. Change Task Status | 6. Sync Dates | 7. Importance Print | 8. Clear Log | 9. Exit\n");
     scanf("%d", &select);
     getchar();
     switch (select) {
     case 1:
-      addTask(counts++);
+      addTask(counts);
+      counts++;
       break;
     case 2:
       counts = removeTask(counts);
@@ -62,14 +62,22 @@ int main() {
       break;
     case 6:
       initDday(counts);
-      printf("디데이가 동기화되었습니다.\n");
+      printf("The D-days have been synchronized.\n");
       break;
+    case 7:
+    	printImportance(counts);
+    	break;
+    case 8:
+    	for(i=0; i<100; i++){
+    		printf("\n");
+		}
+		break;
     }
   }
 
   fp = fopen("todoList.csv", "w");
   if (fp == NULL) {
-    printf("파일 열기 오류");
+    printf("File opening error");
     fclose(fp);
     return 1;
   }
@@ -82,7 +90,8 @@ int main() {
     }
   }
   printf("-------------------------------------------\n");
-  printf("프로그램이 종료되었습니다.");
+  printf("The program has ended.");
   fclose(fp);
   return 0;
 }
+
