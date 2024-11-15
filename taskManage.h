@@ -2,25 +2,26 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX_TASKS 300 // 최대 할 일 개수
+#define MAX_TASKS 300 // Maximum number of tasks
 
 typedef struct {
-  char taskName[50]; // 할 일 이름
-  int targetYear;    // 목표 연도
-  int targetMonth;   // 목표 월
-  int targetDay;     // 목표 일
-  long int d_Day;    // D-day 값
-  char importance[10]; // 우선순위
-  char taskState[10];  // 할 일 상태
+  char taskName[50];   // Task name
+  int targetYear;      // Target year
+  int targetMonth;     // Target month
+  int targetDay;       // Target day
+  long int d_Day;      // D-day value
+  char importance[10]; // Priority
+  char taskState[10];  // Task state
+  char test[50];
 } todoList;
 
-todoList todoLists[MAX_TASKS]; // 할 일 목록 배열 선언
-void printTaskForm(int i){
+todoList todoLists[MAX_TASKS]; // Array of task list
+void printTaskForm(int i) {
   if (todoLists[i].d_Day > 0) {
     printf("| [%s] %s [%d.%d.%1d] D-%ld #%s\n", todoLists[i].taskState,
            todoLists[i].taskName, todoLists[i].targetYear,
-           todoLists[i].targetMonth, todoLists[i].targetDay,
-           todoLists[i].d_Day, todoLists[i].importance);
+           todoLists[i].targetMonth, todoLists[i].targetDay, todoLists[i].d_Day,
+           todoLists[i].importance);
   } else if (todoLists[i].d_Day == 0) {
     printf("| [%s] %s [%d.%d.%1d] D-Day #%s\n", todoLists[i].taskState,
            todoLists[i].taskName, todoLists[i].targetYear,
@@ -33,54 +34,55 @@ void printTaskForm(int i){
            -todoLists[i].d_Day, todoLists[i].importance);
   }
 }
-// 윤년 확인 함수
-// 주어진 연도가 윤년인지 확인하는 함수입니다.
-// 조건: 4의 배수이고 100의 배수가 아니거나, 400의 배수이면 윤년입니다.
+
+// Leap year check function
+// Function to check if the given year is a leap year
+// Condition: If divisible by 4 and not divisible by 100, or divisible by 400, it is a leap year
 int isLeapYear(int year) {
   return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-// 전체 일수 계산 함수
-// 주어진 날짜(y, m, d)까지의 총 일수를 계산합니다.
-// 윤년인 경우 2월은 29일로 설정하여 계산합니다.
+// Function to calculate total days
+// Calculates the total number of days up to a given date (y, m, d)
+// In the case of a leap year, February is set to 29 days
 long totalday(int y, int m, int d) {
   int months[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   long total = 0L;
   int i;
 
-  // 윤년이면 2월을 29일로 설정
+  // If it's a leap year, set February to 29 days
   if (isLeapYear(y)) {
     months[1] = 29;
   }
 
-  // 연 단위 총 일수 계산
+  // Calculate total days for the years
   total = (y - 1) * 365L + (y - 1) / 4 - (y - 1) / 100 + (y - 1) / 400;
 
-  // 월 단위 일수 추가
+  // Add the days for the months
   for (i = 0; i < m - 1; i++) {
     total += months[i];
   }
 
-  // 일 단위 추가
+  // Add the days for the given day
   total += d;
   return total;
 }
 
-// D-day 계산 함수
-// 현재 날짜와 목표 날짜의 차이를 계산하여 D-day 값을 반환합니다.
+// D-day calculation function
+// Calculates the difference between the current date and target date to return the D-day value
 long D_day_count(int counts, int year, int month, int day) {
-  long today_days = totalday(year, month, day); // 현재 날짜의 총 일수
+  long today_days = totalday(year, month, day); // Total days for the current date
   long target_days =
       totalday(todoLists[counts].targetYear, todoLists[counts].targetMonth,
-               todoLists[counts].targetDay); // 목표 날짜의 총 일수
-  long dates = target_days - today_days; // D-day 값 계산
+               todoLists[counts].targetDay); // Total days for the target date
+  long dates = target_days - today_days;     // Calculate the D-day value
   return dates;
 }
 
-// 1번 할 일 추가 함수
-// 할 일 이름, 목표 날짜, 우선순위를 입력받고 할 일을 추가합니다.
+// Add task function
+// Takes the task name, target date, and priority and adds a new task
 void addTask(int counts) {
-  // 현재 날짜 자동 설정
+  // Automatically set the current date
   time_t t = time(NULL);
   struct tm *today = localtime(&t);
   int year = today->tm_year + 1900;
@@ -88,159 +90,168 @@ void addTask(int counts) {
   int day = today->tm_mday;
   int i;
 
-  // task의 달성 상태를 미완료로 설정
-  strcpy(todoLists[counts].taskState, "Incomplete");
+// Task input
+inputTask:
+  printf("-------------------------------------------\n");
+  printf("Please enter the task [50 characters max] : ");
+  fgets(todoLists[counts].taskName, 50, stdin);
+  todoLists[counts].taskName[strcspn(todoLists[counts].taskName, "\n")] =
+      '\0'; // Remove newline
 
-  // 할 일 입력
-  inputTask:
-    printf("-------------------------------------------\n");
-    printf("할 일을 입력해주세요[50자 내] : ");
-    fgets(todoLists[counts].taskName, 50, stdin);
-    todoLists[counts].taskName[strcspn(todoLists[counts].taskName, "\n")] =
-        '\0'; // 개행 제거
-
-  // 중복된 이름이 있는지 검사
-  if(counts != 0){
-    for(i = 0; i < counts; i++){
-      if(strcmp(todoLists[counts].taskName, todoLists[i].taskName) == 0){
-        printf("중복된 목표 이름입니다.\n");
+  // Check if there is a duplicate name
+  if (counts != 0) {
+    for (i = 0; i < counts; i++) {
+      if (strcmp(todoLists[counts].taskName, todoLists[i].taskName) == 0) {
+        printf("Duplicate task name.\n");
         goto inputTask;
       }
     }
   }
 
-  // 목표 날짜 입력
+  // Enter target date
   char dateInput[20];
-  printf("목표 날짜를 적어주세요[YYYY.MM.DD] : ");
+  printf("Please enter the target date [YYYY.MM.DD] : ");
   fgets(dateInput, sizeof(dateInput), stdin);
 
-  // 날짜 유효성 검사 및 목표 날짜 설정
+  // Validate date input and set the target date
   while (sscanf(dateInput, "%d.%d.%d", &todoLists[counts].targetYear,
-                &todoLists[counts].targetMonth, &todoLists[counts].targetDay) != 3 ||
+                &todoLists[counts].targetMonth,
+                &todoLists[counts].targetDay) != 3 ||
          todoLists[counts].targetMonth > 12 ||
          todoLists[counts].targetDay > 31 ||
          todoLists[counts].targetMonth < 1 || todoLists[counts].targetDay < 1) {
-      printf("잘못된 날짜입니다. 다시 입력해주세요\n");
-      fgets(dateInput, sizeof(dateInput), stdin);
+    printf("Invalid date. Please enter again.\n");
+    fgets(dateInput, sizeof(dateInput), stdin);
   }
 
-  // 우선순위 입력
-  printf("우선순위를 적어주세요[High, Middle, Low] : ");
+  // Enter priority
+  printf("Please enter the priority [High, Middle, Low] : ");
   scanf("%s", todoLists[counts].importance);
 
-  // 우선순위 유효성 확인
+  // Validate priority input
   while (strcmp(todoLists[counts].importance, "High") != 0 &&
          strcmp(todoLists[counts].importance, "Middle") != 0 &&
          strcmp(todoLists[counts].importance, "Low") != 0) {
-    printf("잘못된 우선순위입니다. 다시 입력해주세요\n");
+    printf("Invalid priority. Please enter again.\n");
     scanf("%s", todoLists[counts].importance);
   }
+  //Set the task's status to incomplete
+  strcpy(todoLists[counts].taskState, "Incomplete");
 
-  // D-day 계산
+
+  // Calculate D-day
   todoLists[counts].d_Day = D_day_count(counts, year, month, day);
 }
 
-// 2번 할 일 제거 함수
-// 할 일 목록에서 이름을 통해 특정 할 일을 제거합니다.
-int removeTask(int counts){
+// Remove task function
+// Takes the name of the task and removes it
+int removeTask(int counts) {
   if (counts == 0) {
     printf("-------------------------------------------\n");
-    printf("| 목표가 없습니다.\n");
-    return 0;
+    printf("| No tasks available.\n");
+    return counts;
   }
-  int i;
-  printf("-------------------------------------------\n");
-  printf("삭제할 목표의 이름을 입력해주세요 : ");
+
+  int i, j;
   char searchTask[50];
-  fgets(searchTask, 50, stdin);
+  printf("-------------------------------------------\n");
+  printf("Please enter the name of the task to delete : ");
+  fgets(searchTask, sizeof(searchTask), stdin);
   searchTask[strcspn(searchTask, "\n")] = '\0';
+
   for (i = 0; i < counts; i++) {
     if (strcmp(searchTask, todoLists[i].taskName) == 0) {
-      strcpy(todoLists[i].taskName, ""); // 일치하는 이름의 할 일 제거
-      return --counts;
+      // Shift the array forward to remove the task
+      for (j = i; j < counts - 1; j++) {
+        todoLists[j] = todoLists[j + 1];
+      }
+      counts--; // Decrease the task count
+      printf("Task has been deleted.\n");
+      return counts;
     }
   }
-  printf("| 목표를 찾을 수 없습니다.\n");
+
+  printf("| Task not found..\n");
   return counts;
 }
 
-// 3번 할 일 출력 함수
-// 현재 모든 할 일의 상태와 D-day 정보를 출력합니다.
+// Print task function
+// Prints the current state and D-day of all tasks
 int printTask(int counts) {
-  if (counts == 0) {
+  if (counts <= 0) {
     printf("-------------------------------------------\n");
-    printf("| 목표가 없습니다.\n");
+    printf("| No tasks available.\n");
     return 0;
   }
   int i;
   printf("-------------------------------------------\n");
   for (i = 0; i < counts; i++) {
-    if (strcmp(todoLists[i].taskName, "") != 0){
+    if (strcmp(todoLists[i].taskName, "") != 0) {
       printTaskForm(i);
     }
   }
   return 0;
 }
 
-// 4번 할 일 수정 함수
-// 이름을 통해 특정 할 일을 찾아 수정할 수 있도록 addTask 함수를 호출합니다.
+// Modify task function
+// Allows modification of a specific task by name using the addTask function
 int modifyTask(int counts) {
   if (counts == 0) {
     printf("-------------------------------------------\n");
-    printf("| 목표가 없습니다.\n");
+    printf("| No tasks available.\n");
     return 0;
   }
   int i;
   printf("-------------------------------------------\n");
-  printf("| 수정할 목표의 이름을 입력해주세요 : ");
+  printf("| Please enter the name of the task to modify : ");
   char searchTask[50];
   fgets(searchTask, 50, stdin);
   searchTask[strcspn(searchTask, "\n")] = '\0';
   for (i = 0; i < counts; i++) {
     if (strcmp(searchTask, todoLists[i].taskName) == 0) {
-      addTask(i); // 해당 인덱스에서 addTask를 호출해 정보 수정
+      addTask(i); // Call addTask to modify the task
       return 0;
     }
   }
-  printf("| 목표를 찾을 수 없습니다.\n");
+  printf("| Task not found.\n");
   return 0;
 }
 
-// 5번 할 일 달성 체크 함수
-// 이름을 통해 특정 할 일을 찾아서 완료 상태로 변경합니다.
+// Achieve task function
+// Marks a task as complete by finding it by name
 int achieveTask(int counts) {
   if (counts == 0) {
     printf("-------------------------------------------\n");
-    printf("| 목표가 없습니다.\n");
+    printf("| No tasks available.\n");
     return 0;
   }
   int i;
   printf("-------------------------------------------\n");
-  printf("수정할 목표의 이름을 입력해주세요 : ");
+  printf("Please enter the name of the task to mark as complete : ");
   char searchTask[50];
   fgets(searchTask, 50, stdin);
   searchTask[strcspn(searchTask, "\n")] = '\0';
   for (i = 0; i < counts; i++) {
     if (strcmp(searchTask, todoLists[i].taskName) == 0) {
       if (strcmp(todoLists[i].taskState, "Complete") == 0) {
-        printf("이미 완료한 목표입니다.\n");
+        printf("This task is already completed.\n");
         return 0;
       }
-      strcpy(todoLists[i].taskState, "Complete"); // 상태를 'Complete'로 설정
-      printf("목표가 완료되었습니다.\n");
+      strcpy(todoLists[i].taskState, "Complete"); // Set the state to 'Complete'
+      printf("Task has been completed.\n");
       return 0;
     }
   }
-  printf("목표를 찾을 수 없습니다.\n");
+  printf("Task not found.\n");
   return 0;
 }
 
-// 6번 할 일 날짜 동기화 함수
-// 현재 날짜를 기준으로 모든 할 일의 D-day를 갱신합니다.
+// Sync task dates function
+// Updates the D-day for all tasks based on the current date
 int initDday(int counts) {
   if (counts == 0) {
     printf("-------------------------------------------\n");
-    printf("| 목표가 없습니다.\n");
+    printf("| No tasks available.\n");
     return 0;
   }
   int i;
@@ -251,7 +262,43 @@ int initDday(int counts) {
     int year = today->tm_year + 1900;
     int month = today->tm_mon + 1;
     int day = today->tm_mday;
-    todoLists[i].d_Day = D_day_count(i, year, month, day); // D-day 계산 함수 호출
+    todoLists[i].d_Day =
+        D_day_count(i, year, month, day); // Call D-day calculation function
+  }
+  return 0;
+}
+
+// 7. printImportance
+int printImportance(int counts) {
+  if (counts == 0) {
+    printf("-------------------------------------------\n");
+    printf("| No tasks available.\n");
+    return 0;
+  }
+  int i;
+  printf("-------------------------------------------\n");
+  printf("     [ Importance : High ]\n");
+  // 중요도가 "High"인 할 일을 먼저 출력
+  for (i = 0; i < counts; i++) {
+    if (strcmp(todoLists[i].taskName, "") != 0 && strcmp(todoLists[i].importance, "High") == 0) {
+      printTaskForm(i);
+    }
+  }
+
+  printf("\n     [ Importance : Middle ]\n");
+  // 중요도가 "Middle"인 할 일을 출력
+  for (i = 0; i < counts; i++) {
+    if (strcmp(todoLists[i].taskName, "") != 0 && strcmp(todoLists[i].importance, "Middle") == 0) {
+      printTaskForm(i);
+    }
+  }
+
+  printf("\n     [ Importance : Low ]\n");
+  // 중요도가 "Low"인 할 일을 마지막으로 출력
+  for (i = 0; i < counts; i++) {
+    if (strcmp(todoLists[i].taskName, "") != 0 && strcmp(todoLists[i].importance, "Low") == 0) {
+      printTaskForm(i);
+    }
   }
   return 0;
 }
