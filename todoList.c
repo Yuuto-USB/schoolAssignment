@@ -38,7 +38,7 @@ int main() {
   printf("This is the Todo List program.\n");
 
   while (select != 9) {
-    printf("-------------------------------------------\n");
+    printf("---------------------- [Task : %d] ------------------- \n", counts);
     printf("1. Add Task | 2. Remove Task | 3. Print Task | 4. Modify Task | "
            "5. Change Task Status | 6. Sync Dates | 7. Importance Print | 8. Clear Log | 9. Exit\n");
     scanf("%d", &select);
@@ -52,7 +52,7 @@ int main() {
       counts = removeTask(counts);
       break;
     case 3:
-      printTask(counts++);
+      printTask(counts);
       break;
     case 4:
       modifyTask(counts);
@@ -94,4 +94,3 @@ int main() {
   fclose(fp);
   return 0;
 }
-
