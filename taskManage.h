@@ -35,11 +35,36 @@ void printTaskForm(int i) {
   }
 }
 
+int isFullDay(int month, int day){
+	if(day==31){
+		if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+}
+
 // Leap year check function
 // Function to check if the given year is a leap year
 // Condition: If divisible by 4 and not divisible by 100, or divisible by 400, it is a leap year
 int isLeapYear(int year) {
   return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+int isLeap(int year, int month, int day){
+	if(month == 2 && day == 29){
+		if(isLeapYear(year)){
+			return 0;
+		}
+		else{
+			return 1;
+		}
+	}
+	else{
+		return 0;
+	}
 }
 
 // Function to calculate total days
@@ -119,7 +144,7 @@ inputTask:
                 &todoLists[counts].targetDay) != 3 ||
          todoLists[counts].targetMonth > 12 ||
          todoLists[counts].targetDay > 31 ||
-         todoLists[counts].targetMonth < 1 || todoLists[counts].targetDay < 1) {
+         todoLists[counts].targetMonth < 1 || todoLists[counts].targetDay < 1 || isFullDay(todoLists[counts].targetMonth, todoLists[counts].targetDay) == 1 || isLeap(todoLists[counts].targetYear, todoLists[counts].targetMonth, todoLists[counts].targetDay) == 1) {
     printf("Invalid date. Please enter again.\n");
     fgets(dateInput, sizeof(dateInput), stdin);
   }
@@ -278,7 +303,7 @@ int printImportance(int counts) {
   int i;
   printf("-------------------------------------------\n");
   printf("     [ Importance : High ]\n");
-  // 중요도가 "High"인 할 일을 먼저 출력
+  // High importance task print
   for (i = 0; i < counts; i++) {
     if (strcmp(todoLists[i].taskName, "") != 0 && strcmp(todoLists[i].importance, "High") == 0) {
       printTaskForm(i);
@@ -286,7 +311,7 @@ int printImportance(int counts) {
   }
 
   printf("\n     [ Importance : Middle ]\n");
-  // 중요도가 "Middle"인 할 일을 출력
+  // Middle importance task print
   for (i = 0; i < counts; i++) {
     if (strcmp(todoLists[i].taskName, "") != 0 && strcmp(todoLists[i].importance, "Middle") == 0) {
       printTaskForm(i);
@@ -294,7 +319,7 @@ int printImportance(int counts) {
   }
 
   printf("\n     [ Importance : Low ]\n");
-  // 중요도가 "Low"인 할 일을 마지막으로 출력
+  // Low importance task print
   for (i = 0; i < counts; i++) {
     if (strcmp(todoLists[i].taskName, "") != 0 && strcmp(todoLists[i].importance, "Low") == 0) {
       printTaskForm(i);
